@@ -1,5 +1,6 @@
 """Shared test fixtures for trading data adapter tests."""
 import pytest
+import pytest_asyncio
 from decimal import Decimal
 from datetime import datetime, UTC
 
@@ -32,12 +33,12 @@ async def adapter(config):
     # No connections to disconnect in unit tests
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def connected_adapter(config):
     """Create adapter with connections (for integration tests)."""
-    adapter = await create_adapter(config)
-    yield adapter
-    await adapter.disconnect()
+    adapter_instance = await create_adapter(config)
+    yield adapter_instance
+    await adapter_instance.disconnect()
 
 
 @pytest.fixture

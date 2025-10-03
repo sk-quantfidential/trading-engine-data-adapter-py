@@ -3,13 +3,18 @@ import pytest
 from decimal import Decimal
 from datetime import datetime, UTC
 
+from trading_data_adapter import AdapterConfig, create_adapter
 from trading_data_adapter.models import (
+    Strategy,
     StrategyStatus,
     StrategyType,
+    Order,
     OrderSide,
     OrderType,
     OrderStatus,
+    Trade,
     TradeSide,
+    Position,
 )
 
 
@@ -58,11 +63,11 @@ class TestPostgresBehavior:
         adapter = await create_adapter(config)
 
         # Should not raise exception
-        assert connected_adapter.connection_status.postgres_connected is False
-        assert connected_adapter.connection_status.postgres_error is not None
+        assert adapter.connection_status.postgres_connected is False
+        assert adapter.connection_status.postgres_error is not None
 
         # Stub should still work
-        repo = connected_adapter.get_strategies_repository()
+        repo = adapter.get_strategies_repository()
         assert repo is not None
 
         await adapter.disconnect()
@@ -216,8 +221,8 @@ class TestPostgresBehavior:
         WHEN querying by strategy_id
         THEN should return only items for that strategy
         """
-        orders_repo = adapter.get_orders_repository()
-        positions_repo = adapter.get_positions_repository()
+        orders_repo = connected_adapter.get_orders_repository()
+        positions_repo = connected_adapter.get_positions_repository()
 
         strategy_id = f"test_strategy_{datetime.now(UTC).timestamp()}"
 
