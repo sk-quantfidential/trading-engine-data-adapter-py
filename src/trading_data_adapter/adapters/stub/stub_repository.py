@@ -72,6 +72,15 @@ class StubStrategiesRepository(StrategiesRepository):
         """Count total strategies."""
         return len(self._strategies)
 
+    async def increment_trade_count(self, strategy_id: str) -> None:
+        """Increment total trade count."""
+        # Stub implementation - in real implementation would increment counter
+        logger.debug("Incrementing trade count", strategy_id=strategy_id)
+
+    async def get_by_instrument(self, instrument_id: str) -> list[Strategy]:
+        """Get strategies by instrument."""
+        return [s for s in self._strategies.values() if instrument_id in s.instruments]
+
 
 class StubOrdersRepository(OrdersRepository):
     """Stub implementation of orders repository."""
@@ -139,6 +148,32 @@ class StubOrdersRepository(OrdersRepository):
         """Clean up old orders."""
         return 0
 
+    async def delete(self, order_id: str) -> None:
+        """Delete order by ID."""
+        self._orders.pop(order_id, None)
+        logger.debug("Deleted order", order_id=order_id)
+
+    async def cancel_order(self, order_id: str, cancelled_at: datetime) -> None:
+        """Mark order as cancelled."""
+        if order_id in self._orders:
+            self._orders[order_id].status = OrderStatus.CANCELLED
+            self._orders[order_id].cancelled_at = cancelled_at
+            logger.debug("Cancelled order", order_id=order_id)
+
+    async def get_by_exchange_order_id(self, exchange_order_id: str) -> Optional[Order]:
+        """Get order by exchange order ID."""
+        for order in self._orders.values():
+            if order.exchange_order_id == exchange_order_id:
+                return order
+        return None
+
+    async def get_orders_by_instrument(self, instrument_id: str, status: Optional[str] = None) -> list[Order]:
+        """Get orders by instrument, optionally filtered by status."""
+        results = [o for o in self._orders.values() if o.instrument_id == instrument_id]
+        if status:
+            results = [o for o in results if o.status == status]
+        return results
+
 
 class StubTradesRepository(TradesRepository):
     """Stub implementation of trades repository."""
@@ -192,6 +227,42 @@ class StubTradesRepository(TradesRepository):
     async def cleanup_old_trades(self, days: int) -> int:
         """Clean up old trades."""
         return 0
+
+    async def get_daily_trades(self, strategy_id: str, date: datetime) -> list[Trade]:
+        """Get all trades for a strategy on a specific date."""
+        trades = await self.get_by_strategy(strategy_id)
+        return [t for t in trades if t.executed_at.date() == date.date()]
+
+    async def calculate_total_volume(self, strategy_id: str,
+                                    from_date: Optional[datetime] = None,
+                                    to_date: Optional[datetime] = None) -> float:
+        """Calculate total trading volume."""
+        trades = await self.get_by_strategy(strategy_id)
+        if from_date:
+            trades = [t for t in trades if t.executed_at >= from_date]
+        if to_date:
+            trades = [t for t in trades if t.executed_at <= to_date]
+        total_volume = sum(t.gross_value for t in trades)
+        return float(total_volume)
+
+    async def calculate_total_pnl(self, strategy_id: str,
+                                 from_date: Optional[datetime] = None,
+                                 to_date: Optional[datetime] = None) -> float:
+        """Calculate total realized P&L from trades."""
+        trades = await self.get_by_strategy(strategy_id)
+        if from_date:
+            trades = [t for t in trades if t.executed_at >= from_date]
+        if to_date:
+            trades = [t for t in trades if t.executed_at <= to_date]
+        total = sum(t.realized_pnl or 0 for t in trades)
+        return float(total)
+
+    async def get_by_exchange_trade_id(self, exchange_trade_id: str) -> Optional[Trade]:
+        """Get trade by exchange trade ID."""
+        for trade in self._trades.values():
+            if trade.exchange_trade_id == exchange_trade_id:
+                return trade
+        return None
 
 
 class StubPositionsRepository(PositionsRepository):
@@ -266,6 +337,37 @@ class StubPositionsRepository(PositionsRepository):
     async def cleanup_closed_positions(self, days: int) -> int:
         """Clean up old closed positions."""
         return 0
+
+    async def get_by_instrument(self, strategy_id: str, instrument_id: str) -> Optional[Position]:
+        """Get position for a specific strategy and instrument."""
+        for pos in self._positions.values():
+            if pos.strategy_id == strategy_id and pos.instrument_id == instrument_id:
+                return pos
+        return None
+
+    async def update_market_data(self, position_id: str, current_price: float) -> None:
+        """Update position with current market price and recalculate P&L."""
+        if position_id in self._positions:
+            from decimal import Decimal
+            pos = self._positions[position_id]
+            pos.current_price = Decimal(str(current_price))
+            pos.market_value = pos.quantity * pos.current_price
+            pos.unrealized_pnl = (pos.current_price - pos.average_entry_price) * pos.quantity
+            pos.total_pnl = pos.realized_pnl + pos.unrealized_pnl
+            pos.exposure = abs(pos.quantity) * pos.current_price
+            logger.debug("Updated market data", position_id=position_id, current_price=current_price)
+
+    async def close_position(self, position_id: str, closed_at: datetime) -> None:
+        """Mark position as closed."""
+        if position_id in self._positions:
+            self._positions[position_id].closed_at = closed_at
+            logger.debug("Closed position", position_id=position_id)
+
+    async def calculate_total_unrealized_pnl(self, strategy_id: Optional[str] = None) -> float:
+        """Calculate total unrealized P&L across positions."""
+        positions = await self.get_open_positions(strategy_id)
+        total = sum(p.unrealized_pnl for p in positions)
+        return float(total)
 
 
 class StubServiceDiscoveryRepository(ServiceDiscoveryRepository):
