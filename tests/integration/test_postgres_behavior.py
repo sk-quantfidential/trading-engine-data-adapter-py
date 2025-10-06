@@ -129,6 +129,7 @@ class TestPostgresBehavior:
             order_type=OrderType.LIMIT,
             status=OrderStatus.PENDING,
             quantity=Decimal("1.0"),
+            remaining_quantity=Decimal("1.0"),
             price=Decimal("50000.00"),
         )
 
@@ -165,6 +166,7 @@ class TestPostgresBehavior:
             gross_value=Decimal("75000.00"),
             commission=Decimal("7.50"),
             net_value=Decimal("74992.50"),
+            execution_venue="exchange-simulator",
             realized_pnl=Decimal("100.00"),
             executed_at=datetime.now(UTC),
         )
@@ -198,8 +200,10 @@ class TestPostgresBehavior:
             unrealized_pnl=Decimal("2000.00"),
             realized_pnl=Decimal("0"),
             total_pnl=Decimal("2000.00"),
+            cost_basis=Decimal("98000.00"),
             exposure=Decimal("100000.00"),
             opened_at=datetime.now(UTC),
+            last_updated=datetime.now(UTC),
         )
 
         await repo.create(position)
@@ -236,6 +240,7 @@ class TestPostgresBehavior:
                 order_type=OrderType.LIMIT,
                 status=OrderStatus.PENDING,
                 quantity=Decimal("1.0"),
+                remaining_quantity=Decimal("1.0"),
                 price=Decimal("100.00"),
             )
             await orders_repo.create(order)
@@ -273,6 +278,7 @@ class TestPostgresBehavior:
                 order_type=OrderType.LIMIT,
                 status=status,
                 quantity=Decimal("1.0"),
+                remaining_quantity=Decimal("1.0"),
                 price=Decimal("100.00"),
             )
             await repo.create(order)
@@ -309,8 +315,10 @@ class TestPostgresBehavior:
                 unrealized_pnl=Decimal("0"),
                 realized_pnl=Decimal("0"),
                 total_pnl=Decimal("0"),
+                cost_basis=Decimal("100.00"),
                 exposure=exposure,
                 opened_at=datetime.now(UTC),
+                last_updated=datetime.now(UTC),
             )
             await repo.create(position)
 
