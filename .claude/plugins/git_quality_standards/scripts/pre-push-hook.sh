@@ -242,10 +242,66 @@ else
 fi
 
 # ============================================================================
-# CHECK 6: Run full validation suite
+# CHECK 6: Markdown linting
 # ============================================================================
 echo ""
-echo -e "${YELLOW}[6/6] Running full validation suite...${NC}"
+echo -e "${YELLOW}[6/7] Checking markdown files...${NC}"
+
+# Check if markdownlint is installed
+if command -v markdownlint &> /dev/null; then
+  # Find markdown files in repository (excluding node_modules, vendor, .claude/*, etc.)
+  MARKDOWN_FILES=$(find . -name "*.md" \
+    -not -path "*/node_modules/*" \
+    -not -path "*/vendor/*" \
+    -not -path "*/.git/*" \
+    -not -path "*/.claude/*" \
+    -not -path "*/dist/*" \
+    -not -path "*/build/*" \
+    2>/dev/null || true)
+
+  if [[ -n "$MARKDOWN_FILES" ]]; then
+    # Run markdownlint with config if available
+    MARKDOWNLINT_CONFIG=""
+    if [[ -f ".markdownlint.json" ]]; then
+      MARKDOWNLINT_CONFIG="--config .markdownlint.json"
+    fi
+
+    # Capture markdownlint output
+    MARKDOWN_ERRORS=$(echo "$MARKDOWN_FILES" | xargs markdownlint $MARKDOWNLINT_CONFIG 2>&1 || true)
+
+    if [[ -n "$MARKDOWN_ERRORS" ]]; then
+      echo -e "${RED}❌ Markdown linting errors found${NC}"
+      echo ""
+      echo "$MARKDOWN_ERRORS"
+      echo ""
+      echo "To fix automatically:"
+      echo "  markdownlint --fix *.md docs/**/*.md"
+      echo ""
+      echo "To configure rules, edit .markdownlint.json"
+      echo ""
+      read -p "Continue with push anyway? (y/N) " -n 1 -r
+      echo
+      if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${RED}Push cancelled. Fix markdown errors and try again.${NC}"
+        exit 1
+      fi
+      echo -e "${YELLOW}⚠️  Proceeding despite markdown errors${NC}"
+    else
+      echo -e "${GREEN}✅ All markdown files pass linting${NC}"
+    fi
+  else
+    echo -e "${BLUE}ℹ️  No markdown files found${NC}"
+  fi
+else
+  echo -e "${YELLOW}⚠️  markdownlint not installed - skipping markdown validation${NC}"
+  echo -e "${BLUE}ℹ️  Install with: npm install -g markdownlint-cli${NC}"
+fi
+
+# ============================================================================
+# CHECK 7: Run full validation suite
+# ============================================================================
+echo ""
+echo -e "${YELLOW}[7/7] Running full validation suite...${NC}"
 echo -e "${BLUE}ℹ️  This may take a moment - validating markdown, cross-references, and code blocks${NC}"
 echo ""
 

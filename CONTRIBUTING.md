@@ -89,6 +89,7 @@ git checkout -b fix/epic-TSE-0003-data-adapter-bug-description
 - [ ] TODO.md updated (if applicable)
 
 **Commit message format**:
+
 ```bash
 git commit -m "type(epic-XXX-9999/milestone): short description
 
@@ -104,6 +105,7 @@ Task: Specific task from TODO.md"
 ### 4. Creating Pull Requests
 
 **Option 1: Automated (Recommended)**
+
 ```bash
 # 1. Create PR documentation
 cat > docs/prs/feature-epic-TSE-0003-your-feature.md <<EOF
@@ -118,6 +120,7 @@ EOF
 ```
 
 **Option 2: Manual**
+
 ```bash
 # 1. Push branch
 git push -u origin feature/epic-TSE-0003-your-feature
@@ -144,6 +147,7 @@ gh pr create --fill
 - **Type Checker**: `mypy`
 
 **Example**:
+
 ```python
 from typing import Protocol
 
@@ -175,6 +179,7 @@ class StrategyRepository(Protocol):
    - Framework-specific code
 
 3. **Dependency Direction**: Always inward
+
    ```
    Infrastructure → Domain
    ✅ Allowed: Infrastructure imports Domain
@@ -325,6 +330,7 @@ def test_should_save_strategy_when_valid_data():
 **Format**: `type(epic-XXX-9999/milestone): description`
 
 **Good examples**:
+
 ```
 feat(epic-TSE-0003/foundation): add PostgreSQL repository implementation
 fix(epic-TSE-0003/foundation): resolve connection pool exhaustion
@@ -333,6 +339,7 @@ docs(epic-TSE-0003/foundation): update README with multi-instance support
 ```
 
 **Bad examples**:
+
 ```
 ❌ fix bug
 ❌ update code
@@ -389,12 +396,14 @@ docs(epic-TSE-0003/foundation): update README with multi-instance support
 ### Common Issues
 
 **Pre-push hook fails**:
+
 ```bash
 # Reinstall hooks
 ./.claude/plugins/git_quality_standards/scripts/install-git-hooks-enhanced.sh -y -y -y
 ```
 
 **Tests fail locally**:
+
 ```bash
 # Ensure PostgreSQL is running
 docker-compose up -d postgres
@@ -404,6 +413,7 @@ conda activate py313_trading_ecosystem_dev
 ```
 
 **Linting errors**:
+
 ```bash
 # Auto-fix most issues
 ruff check --fix src/ tests/

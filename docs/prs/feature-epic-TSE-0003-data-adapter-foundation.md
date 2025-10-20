@@ -74,6 +74,7 @@ The installed hook validates:
 - **No configuration changes**
 
 ### Installation for New Developers
+
 ```bash
 # Hooks are automatically installed for existing clones
 # For new clones, run:

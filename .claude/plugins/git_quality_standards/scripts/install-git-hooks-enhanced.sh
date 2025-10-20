@@ -22,20 +22,21 @@ if [[ ! -d ".git" ]]; then
 fi
 
 # Check scripts directory exists
-if [[ ! -d "scripts" ]]; then
-  echo -e "${YELLOW}❌ Error: scripts/ directory not found${NC}"
-  echo "Ensure scripts/ directory with hook scripts exists."
+SCRIPT_DIR=".claude/plugins/git_quality_standards/scripts"
+if [[ ! -d "$SCRIPT_DIR" ]]; then
+  echo -e "${YELLOW}❌ Error: $SCRIPT_DIR directory not found${NC}"
+  echo "Ensure git_quality_standards plugin is installed."
   exit 1
 fi
 
 # Install pre-push hook
-if [[ -f "scripts/pre-push-hook.sh" ]]; then
+if [[ -f "$SCRIPT_DIR/pre-push-hook.sh" ]]; then
   echo -e "${BLUE}Installing pre-push hook...${NC}"
-  cp scripts/pre-push-hook.sh .git/hooks/pre-push
+  cp "$SCRIPT_DIR/pre-push-hook.sh" .git/hooks/pre-push
   chmod +x .git/hooks/pre-push
   echo -e "${GREEN}✅ Pre-push hook installed${NC}"
 else
-  echo -e "${YELLOW}⚠️  scripts/pre-push-hook.sh not found, skipping${NC}"
+  echo -e "${YELLOW}⚠️  $SCRIPT_DIR/pre-push-hook.sh not found, skipping${NC}"
 fi
 
 # Optional: Install GitHub Actions workflows
@@ -53,25 +54,25 @@ if [[ "$INSTALL_GH_ACTIONS" == "prompt" ]]; then
 fi
 
 if [[ "$INSTALL_GH_ACTIONS" == "yes" ]] || [[ "$INSTALL_GH_ACTIONS" == "-y" ]]; then
-  TEMPLATE_DIR="${HOME}/.claude/skills/foundations/git_quality_standards/templates"
+  WORKFLOW_DIR=".claude/plugins/git_quality_standards/workflows"
 
-  if [[ -d "$TEMPLATE_DIR" ]]; then
+  if [[ -d "$WORKFLOW_DIR" ]]; then
     echo ""
     echo -e "${BLUE}Installing GitHub Actions workflows...${NC}"
     mkdir -p .github/workflows
 
-    if [[ -f "$TEMPLATE_DIR/github-actions-pr-checks.yml.template" ]]; then
-      cp "$TEMPLATE_DIR/github-actions-pr-checks.yml.template" .github/workflows/pr-checks.yml
+    if [[ -f "$WORKFLOW_DIR/pr-checks.yml" ]]; then
+      cp "$WORKFLOW_DIR/pr-checks.yml" .github/workflows/pr-checks.yml
       echo -e "${GREEN}✅ Created .github/workflows/pr-checks.yml${NC}"
       echo -e "${YELLOW}   Remember to customize project codes (XXX → YOUR_CODE)${NC}"
     fi
 
-    if [[ -f "$TEMPLATE_DIR/github-actions-validation.yml.template" ]]; then
-      cp "$TEMPLATE_DIR/github-actions-validation.yml.template" .github/workflows/validation.yml
+    if [[ -f "$WORKFLOW_DIR/validation.yml" ]]; then
+      cp "$WORKFLOW_DIR/validation.yml" .github/workflows/validation.yml
       echo -e "${GREEN}✅ Created .github/workflows/validation.yml${NC}"
     fi
   else
-    echo -e "${YELLOW}⚠️  Template directory not found: $TEMPLATE_DIR${NC}"
+    echo -e "${YELLOW}⚠️  Workflow directory not found: $WORKFLOW_DIR${NC}"
   fi
 fi
 
@@ -90,13 +91,13 @@ if [[ "$INSTALL_PR_TEMPLATE" == "prompt" ]]; then
 fi
 
 if [[ "$INSTALL_PR_TEMPLATE" == "yes" ]] || [[ "$INSTALL_PR_TEMPLATE" == "-y" ]]; then
-  TEMPLATE_DIR="${HOME}/.claude/skills/foundations/git_quality_standards/templates"
+  TEMPLATE_DIR=".claude/plugins/git_quality_standards/templates"
 
-  if [[ -f "$TEMPLATE_DIR/PR_DOCUMENTATION_TEMPLATE.md" ]]; then
+  if [[ -f "$TEMPLATE_DIR/pull_request_template.md" ]]; then
     echo ""
     echo -e "${BLUE}Installing PR template...${NC}"
     mkdir -p .github
-    cp "$TEMPLATE_DIR/PR_DOCUMENTATION_TEMPLATE.md" .github/pull_request_template.md
+    cp "$TEMPLATE_DIR/pull_request_template.md" .github/pull_request_template.md
     echo -e "${GREEN}✅ Created .github/pull_request_template.md${NC}"
     echo -e "${YELLOW}   This appears in GitHub when creating PRs${NC}"
   else
@@ -120,7 +121,7 @@ if [[ ! -f ".validation_exceptions" ]]; then
   fi
 
   if [[ "$INSTALL_VALIDATION" == "yes" ]] || [[ "$INSTALL_VALIDATION" == "-y" ]]; then
-    TEMPLATE_DIR="${HOME}/.claude/skills/foundations/git_quality_standards/templates"
+    TEMPLATE_DIR=".claude/plugins/git_quality_standards/templates"
 
     if [[ -f "$TEMPLATE_DIR/.validation_exceptions.template" ]]; then
       echo ""
@@ -138,7 +139,7 @@ echo -e "${GREEN}✅ Git hooks installation complete!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo -e "${BLUE}Installed hooks:${NC}"
-echo "  • pre-push: Validates branch name, PR documentation, TODO.md updates"
+echo "  • pre-push: Validates branch name, PR documentation, markdown, TODO.md updates"
 echo ""
 echo -e "${BLUE}What these hooks do:${NC}"
 echo "  1. Prevent pushing from main/master branches"
@@ -146,6 +147,8 @@ echo "  2. Validate branch naming convention"
 echo "  3. Ensure PR documentation exists in docs/prs/"
 echo "  4. Check PR file has required sections"
 echo "  5. Verify TODO.md was updated"
+echo "  6. Lint markdown files with markdownlint"
+echo "  7. Run full validation suite (if available)"
 echo ""
 echo -e "${YELLOW}Note: Hooks run automatically before git push${NC}"
 echo "To skip hooks temporarily: git push --no-verify"
