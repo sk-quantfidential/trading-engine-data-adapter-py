@@ -10,7 +10,7 @@
 
 ## Current Milestone: Repository Infrastructure Setup
 
-### Tasks
+### Task
 
 - [x] Initialize repository structure
 - [x] Add comprehensive .gitignore for Python projects
@@ -35,6 +35,7 @@
   - [x] Create symlinks in .github/ for GitHub compatibility
   - [x] Create comprehensive plugin README.md (312 lines)
   - [x] Restore .validation_exceptions to repository root
+  - [x] Restore workflow files to repository .github
 - [ ] Push branch and validate pre-push hook passes
 - [ ] Create pull request on GitHub using automated script
 - [ ] Merge to main after approval
