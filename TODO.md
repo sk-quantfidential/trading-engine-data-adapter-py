@@ -36,6 +36,11 @@
   - [x] Create comprehensive plugin README.md (312 lines)
   - [x] Restore .validation_exceptions to repository root
   - [x] Restore workflow files to repository .github
+- [x] Add markdown linting to pre-push hook
+  - [x] Add CHECK 6 for markdownlint validation in pre-push-hook.sh
+  - [x] Create .markdownlint.json configuration
+  - [x] Update install-git-hooks-enhanced.sh to use plugin paths
+  - [x] Auto-fix existing markdown formatting issues
 - [ ] Push branch and validate pre-push hook passes
 - [ ] Create pull request on GitHub using automated script
 - [ ] Merge to main after approval
