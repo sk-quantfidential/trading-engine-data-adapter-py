@@ -41,6 +41,16 @@
   - [x] Create .markdownlint.json configuration
   - [x] Update install-git-hooks-enhanced.sh to use plugin paths
   - [x] Auto-fix existing markdown formatting issues
+- [x] Create repository validation script
+  - [x] Create scripts/validate-all.sh (168 lines, 5 validation checks)
+  - [x] Integrate with CHECK 7 of pre-push hook
+  - [x] Validate required files, plugin structure, workflows, docs, markdown
+- [x] Sync improvements back to global skills
+  - [x] Copy updated pre-push-hook.sh to ~/.claude/skills/
+  - [x] Copy updated install-git-hooks-enhanced.sh to ~/.claude/skills/
+  - [x] Copy validate-all.sh to ~/.claude/skills/
+  - [x] Update ~/.claude/skills/foundations/git_quality_standards/SKILL.md
+  - [x] Add Pattern 7: Plugin Architecture documentation
 - [ ] Push branch and validate pre-push hook passes
 - [ ] Create pull request on GitHub using automated script
 - [ ] Merge to main after approval
