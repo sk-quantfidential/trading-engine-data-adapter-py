@@ -1,0 +1,104 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "trading-data-adapter"
+version = "0.1.0"
+description = "Data persistence adapter for trading system engine"
+authors = [
+    {name = "Trading Ecosystem Team", email = "team@quantfidential.com"},
+]
+dependencies = [
+    # Async utilities
+    "anyio>=4.6.0",
+
+    # PostgreSQL async driver
+    "asyncpg>=0.29.0",
+
+    # Fast JSON serialization
+    "orjson>=3.11.3",
+
+    # Data validation and settings
+    "pydantic>=2.11.9",
+    "pydantic-settings>=2.10.1",
+
+    # Redis async client
+    "redis>=6.4.0",
+
+    # SQL toolkit with async support
+    "sqlalchemy[asyncio]>=2.0.0",
+
+    # Structured logging
+    "structlog>=24.4.0",
+]
+requires-python = ">=3.13"
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "pytest-cov>=7.0.0",
+    "pytest-mock>=3.15.1",
+
+    # Code quality and formatting
+    "ruff>=0.13.1",
+    "mypy>=1.13.0",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.version]
+path = "src/trading_data_adapter/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/trading_data_adapter"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "SIM", "I"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=trading_data_adapter",
+    "--cov-report=term-missing",
+    "--cov-fail-under=30",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+]
