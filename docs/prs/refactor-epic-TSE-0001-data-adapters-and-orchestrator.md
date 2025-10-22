@@ -2,7 +2,7 @@
 
 **Epic**: TSE-0001.4 Data Adapters and Orchestrator Integration
 **Milestone**: TSE-0001.4.5 - Trading System Engine Data Adapter
-**Branch**: `refactor/epic-TSE-0001.4-data-adapters-and-orchestrator`
+**Branch**: `refactor/epic-TSE-0001-data-adapters-and-orchestrator`
 **Status**: ✅ Ready for Merge
 **Test Coverage**: 100% passing (32 tests: 10 unit, 22 integration)
 **Last Updated**: 2025-10-06
