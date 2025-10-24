@@ -160,3 +160,4 @@ query_execution_history(sql) -> ResultSet
 **Epic Context**: TSE-0001 Foundation Services & Infrastructure
 **Last Updated**: 2025-09-18
 **Architecture**: Clean Architecture with domain-driven data persistence
+**Architecture**: Clean Architecture with domain-driven data persistence
